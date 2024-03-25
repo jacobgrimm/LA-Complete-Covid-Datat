@@ -92,13 +92,15 @@ def find_date_of_intake (row):
     elif not pd.isna(row["Date Presented at POE"]):
         return row["Date Presented at POE"]
     
-    elif not pd.isna(row["Date Request Sent to CBP"]):
+    elif ((not pd.isna(row["Date Request Sent to CBP"]) if "Date Request Sent to CBP" in row  else (not pd.isna(row["Date Request to CBP"])))):
         return row["Date Request Sent to CBP"]    
     else:
         return "09/01/2021"
         
     
 def assing_date_of_birth(birth_year):
+    if (birth_year ==0):
+        return nan
     try:
         start_date = datetime.date(birth_year, 1, 1)
         end_date = datetime.date(birth_year, 12, 31)
@@ -106,7 +108,8 @@ def assing_date_of_birth(birth_year):
         return random_day
 
     except Exception as e:
-        print(e)
+        print(f"birth yeaar {birth_year} and {e} ")
+        return nan
 
     
 def main(main_csv, supplemental_birthday_csv):
@@ -124,7 +127,7 @@ def main(main_csv, supplemental_birthday_csv):
     columns = ["Date", "Name", "Total Family Members", "Victim of Crime/Violence", "Explain Crime/Violence", "LGBTQ+", "Explain Health Problem", "Notes"]
 
     df.rename(columns={'Explique el crimen o violenica en Mexico ': 'Explain Crime/Violence', "date" : "Date", '# Family Members' : "Total Family Members", "Notas" : "Notes" , "Medical Condition and/or Vulnerability" : "Explain Health Problem" }, inplace=True) 
-    df2 = pd.read_csv(supplemental_birthday_csv)
+    df2 = pd.read_csv(supplemental_birthday_csv).fillna({'Birthday 1': 0}).astype({'Birthday 1': int})
     df2["Date of Birth"] = df2["Birthday 1"].apply(assing_date_of_birth)
     out_df = pd.concat([df[columns].copy(), df2[["Birth Country","Date of Birth"]]], axis=1)
 
@@ -139,12 +142,10 @@ csv_1 = 'T42 Exemptions Post Consortium II.csv'
 csv_2 = 'T42 Exceptions Birth-Nationality II.csv'
 out_df1 = main(csv_1,csv_2)
 out_df1.to_csv('CleanedT42File.csv',index=False)
-exit()
 csv_1 = 'T42 Exemptions Post Consortium 1.csv'
 csv_2  = 'T42 Exceptions Birth-Nationality 1.csv'
 out_df2 = main(csv_1,csv_2)
 
-out_df = out_df1 + out_df2
-
+out_df = pd.concat([out_df1, out_df2], ignore_index=True)
 
 out_df.to_csv('CleanedT42File.csv',index=False)
