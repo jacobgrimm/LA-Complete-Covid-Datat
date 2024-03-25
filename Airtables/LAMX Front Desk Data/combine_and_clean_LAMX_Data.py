@@ -83,9 +83,10 @@ def combine_csvs( output_file):
     
     df.insert(9, "Crime/Violence Mexico", column_to_move )
     df.insert(3, "Total Family Members", column_2 )
-    
-    df = df.rename(columns={'Cual es su nombre?': 'Name', 'Fecha de Llamada': 'Date', '¿Cual es tu país de origen?' : 'Country of Origin', "Fecha de Nacimiento" : "Date of Birth", "Notas generales del caso" : "Notes", "¿Se identifica como miembro de la comunidad LGBTQ+?" : "LGBTQ+", "Crime/Violence Mexico" : "Explain Crime/Violence", "¿Ha sido víctima de algún crimen o violencia en México?" : "Victim of Crime/Violence" , "¿Tiene algún problema de salud o discapacidad grave?": "Health Problem", "Explique brevemente el problema de salud grave o discapacidad:" : "Explain Health Problem" })
-
+    df["Victim of Crime/Violence"] = df["¿Ha sido víctima de algún crimen o violencia en México?"]
+    df = df.rename(columns = {"¿Ha sido víctima de algún crimen o violencia en México?": "Victim of Crime/Violence in Mexico"})
+    df = df.rename(columns={'Cual es su nombre?': 'Name', 'Fecha de Llamada': 'Date', '¿Cual es tu país de origen?' : 'Country of Origin', "Fecha de Nacimiento" : "Date of Birth", "Notas generales del caso" : "Notes", "¿Se identifica como miembro de la comunidad LGBTQ+?" : "LGBTQ+", "Crime/Violence Mexico" : "Explain Crime/Violence" , "¿Tiene algún problema de salud o discapacidad grave?": "Health Problem", "Explique brevemente el problema de salud grave o discapacidad:" : "Explain Health Problem" })
+    print(df.columns)
     
     df.to_csv(output_file, index=False)
     
