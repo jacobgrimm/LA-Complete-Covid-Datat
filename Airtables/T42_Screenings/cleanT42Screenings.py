@@ -50,6 +50,9 @@ def combine_csvs( output_file):
     # Apply the function to each row across the specified columns
     df['Name'] = df[col_names].apply(combine_columns, axis=1)
 
+    df = remove_same_party_members(df)
+    df.to_csv("check.csv")
+    
     df = df.rename(columns={'Family Size': 'Total Family Members', 'Birth Country' : 'Country of Origin', "DOB" : "Date of Birth", "Notas generales del caso" : "Notes","LGBT+ Risk" : "LGBTQ+", "Imminent Danger Explain" : "Explain Crime/Violence", "Imminent Danger" : "Victim of Crime/Violence" ,  "Physical / Mental Health Issue": "Health Problem", "Physical / Mental Health Issue Explain" : "Explain Health Problem" })
     df = df[columns]
     
@@ -99,7 +102,15 @@ def add_family_numbers(fam):
             print(fam)
             return 1
     
-
+def remove_same_party_members(df):
+    df["US Contact Phone Number"] = df["US Contact Phone Number"].apply(universal_phone_number_format)
+    df = df.drop_duplicates(subset=['Family Size','US Contact Phone Number'], keep='first')
+    return df
+#get rid of all whitespaces, paranthesis, and non-digit chars to ensure be able to use phone number as duplicate identifier
+def universal_phone_number_format(phone_number):
+    if type(phone_number) is not str:
+        return None
+    return(''.join(char for char in phone_number if char.isdigit()))[-10:]
 
 output_file = 'T42 Screenings (Combined) data.csv'
 combine_csvs(output_file)
