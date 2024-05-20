@@ -148,4 +148,6 @@ out_df2 = main(csv_1,csv_2)
 
 out_df = pd.concat([out_df1, out_df2], ignore_index=True)
 
+out_df = out_df.rename(columns={"Birth Country" : "Country of Origin"})
+
 out_df.to_csv('CleanedT42File.csv',index=False)
